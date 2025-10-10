@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# Shared environment variables loaded by interactive shells.
+
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export LIBRARY_PATH="${LIBRARY_PATH:+$LIBRARY_PATH:}/usr/local/lib:/opt/homebrew/lib"

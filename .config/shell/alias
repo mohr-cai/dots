@@ -1,0 +1,34 @@
+alias bathelp='bat --plain --language=help'
+alias c='clear'
+alias cat='bat'
+alias df='df -h'
+alias du='du -h -d 1'
+alias f='fff'
+alias fk='sudo !!'
+alias freec='free -h | bat -l cpuinfo -p'
+alias gg='git add . && git commit -m "feat: misc" && git push'
+alias grep='grep --color=auto'
+alias k='killall'
+alias l='ls -lh --color=auto --group-directories-first'
+alias la='ls -lah --color=auto --group-directories-first'
+alias ls='ls -h --color=auto --group-directories-first'
+alias lsbc='lsblk | bat -l conf -p'
+alias man='batman'
+alias mv='mv -i'
+alias rm='rm -Iv'
+alias shell='exec $SHELL -l'
+alias sensors='sensors | bat -l cpuinfo -p'
+alias v='nvim'
+
+help() {
+    "$@" --help 2>&1 | bathelp
+}
+
+p() {
+    if [[ $# -eq 0 ]]; then
+        command ps aux
+        return
+    fi
+
+    command ps aux | command grep --color=auto -i "$@" | command grep -v '[g]rep'
+}
