@@ -1,6 +1,5 @@
 **/.zsh_sessions/
 **/.zsh_history
 **/.zcompdump*
-**/.xdg-state*
-
-nvim/.nvimlog
+**.xdg-data
+**.xdg-state
