@@ -7,36 +7,11 @@ return {
     end,
   },
   {
-    "williamboman/mason.nvim",
-    build = ":MasonUpdate",
-    config = function()
-      require("mason").setup()
-    end,
-  },
-  {
-    "williamboman/mason-lspconfig.nvim",
+    "neovim/nvim-lspconfig",
     dependencies = {
-      "williamboman/mason.nvim",
-      "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local mason_lspconfig = require("mason-lspconfig")
-      mason_lspconfig.setup({
-        ensure_installed = {
-          "bashls",
-          "cssls",
-          "eslint",
-          "gopls",
-          "lua_ls",
-          "pyright",
-          "rust_analyzer",
-          "tsserver",
-          "yamlls",
-        },
-      })
-
-      local lspconfig = require("lspconfig")
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
@@ -61,30 +36,35 @@ return {
         map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")
       end
 
-      mason_lspconfig.setup_handlers({
-        function(server_name)
-          lspconfig[server_name].setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-          })
-        end,
-        ["lua_ls"] = function()
-          lspconfig.lua_ls.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            settings = {
-              Lua = {
-                completion = { callSnippet = "Replace" },
-                diagnostics = { globals = { "vim" } },
-                workspace = {
-                  checkThirdParty = false,
-                  library = vim.api.nvim_get_runtime_file("", true),
-                },
+      local servers = {
+        bashls = {},
+        cssls = {},
+        eslint = {},
+        lua_ls = {
+          settings = {
+            Lua = {
+              completion = { callSnippet = "Replace" },
+              diagnostics = { globals = { "vim" } },
+              workspace = {
+                checkThirdParty = false,
+                library = vim.api.nvim_get_runtime_file("", true),
               },
             },
-          })
-        end,
-      })
+          },
+        },
+        pyright = {},
+        rust_analyzer = {},
+        ts_ls = {},
+        yamlls = {},
+      }
+
+      for server, server_config in pairs(servers) do
+        vim.lsp.config(server, vim.tbl_deep_extend("force", {}, {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        }, server_config))
+        vim.lsp.enable(server)
+      end
     end,
   },
   {

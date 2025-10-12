@@ -16,3 +16,25 @@ autocmd("BufWritePre", {
     vim.fn.winrestview(view)
   end,
 })
+
+local function apply_transparency()
+  local groups = {
+    "Normal",
+    "NormalNC",
+    "NormalFloat",
+    "FloatBorder",
+    "NeoTreeNormal",
+    "NeoTreeNormalNC",
+    "SignColumn",
+    "EndOfBuffer",
+  }
+  for _, group in ipairs(groups) do
+    vim.api.nvim_set_hl(0, group, { bg = "none" })
+  end
+end
+
+autocmd({ "ColorScheme", "VimEnter" }, {
+  callback = function()
+    apply_transparency()
+  end,
+})

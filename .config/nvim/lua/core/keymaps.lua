@@ -7,6 +7,17 @@ map({ "n", "v" }, "<leader>w", "<cmd>w<cr>", vim.tbl_extend("force", opts, { des
 map("n", "<leader>h", "<cmd>nohlsearch<cr>", vim.tbl_extend("force", opts, { desc = "Clear highlights" }))
 map("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", vim.tbl_extend("force", opts, { desc = "File explorer" }))
 map("n", "<leader>t", "<cmd>ToggleTerm<cr>", vim.tbl_extend("force", opts, { desc = "Toggle terminal" }))
+map("n", "<leader>uz", function()
+  local ok, zen = pcall(require, "zen-mode")
+  if ok then
+    zen.toggle()
+  else
+    vim.notify("Zen mode plugin not available", vim.log.levels.WARN)
+  end
+end, vim.tbl_extend("force", opts, { desc = "Toggle zen mode" }))
+map("n", "<leader>ut", "<cmd>Twilight<cr>", vim.tbl_extend("force", opts, { desc = "Toggle twilight" }))
+map("n", "<leader>bp", "<cmd>BufferLinePick<cr>", vim.tbl_extend("force", opts, { desc = "Pick buffer" }))
+map("n", "<leader>bd", "<cmd>BufferLinePickClose<cr>", vim.tbl_extend("force", opts, { desc = "Close buffer" }))
 
 -- Telescope
 map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", vim.tbl_extend("force", opts, { desc = "Find files" }))
