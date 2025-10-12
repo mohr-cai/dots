@@ -82,17 +82,18 @@ PROMPT+='%(?.%F{green}❯.%F{red}❯)%f '
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/fabiogruschka/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+_conda_home="${CONDA_DIR:-$HOME/miniconda3}"
+__conda_setup="$("$_conda_home/bin/conda" 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/Users/fabiogruschka/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/fabiogruschka/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "$_conda_home/etc/profile.d/conda.sh" ]; then
+        . "$_conda_home/etc/profile.d/conda.sh"
     else
-        export PATH="/Users/fabiogruschka/miniconda3/bin:$PATH"
+        export PATH="$_conda_home/bin:$PATH"
     fi
 fi
-unset __conda_setup
+unset __conda_setup _conda_home
 # <<< conda initialize <<<
 
 # Load shared environment variables.
