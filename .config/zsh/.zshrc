@@ -95,13 +95,3 @@ else
 fi
 unset __conda_setup _conda_home
 # <<< conda initialize <<<
-
-# Load shared environment variables.
-if [[ -r "$HOME/dots/.config/shell/vars" ]]; then
-  source "$HOME/dots/.config/shell/vars"
-fi
-
-# Load shell aliases.
-if [[ -r "$HOME/dots/.config/shell/alias" ]]; then
-  source "$HOME/dots/.config/shell/alias"
-fi
