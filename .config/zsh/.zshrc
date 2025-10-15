@@ -64,7 +64,7 @@ bindkey '^[f' forward-word
 
 # Load Oh My Zsh (plugins, theme scaffolding)
 ZSH_THEME="awesomepanda"
-plugins=(git zsh-autosuggestions)
+plugins=(git)
 source "$ZSH/oh-my-zsh.sh"
 unset skip_global_compinit
 
@@ -95,3 +95,15 @@ else
 fi
 unset __conda_setup _conda_home
 # <<< conda initialize <<<
+
+# Load shared environment variables.
+if [[ -r "$HOME/dots/.config/shell/vars" ]]; then
+  source "$HOME/dots/.config/shell/vars"
+fi
+
+# Load shell aliases.
+if [[ -r "$HOME/dots/.config/shell/alias" ]]; then
+  source "$HOME/dots/.config/shell/alias"
+fi
+
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
