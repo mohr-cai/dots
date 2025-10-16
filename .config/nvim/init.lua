@@ -3,15 +3,15 @@
 -- install a patched font & ensure your terminal supports glyphs
 -- enjoy :D
 
-
 -- auto-detect .venv in current cwd
 local function detect_python()
   local cwd = vim.loop.cwd()
-  for _, p in ipairs({ "/.venv/bin/python", "/venv/bin/python" }) do
-    local full = cwd .. p
+  for _, suffix in ipairs({ "/.venv/bin/python", "/venv/bin/python" }) do
+    local full = cwd .. suffix
     if vim.fn.executable(full) == 1 then return full end
   end
-  return vim.fn.exepath("python3") ~= "" and vim.fn.exepath("python3") or "python3"
+  local system_python = vim.fn.exepath("python3")
+  return system_python ~= "" and system_python or "python3"
 end
 
 vim.g.python3_host_prog = detect_python()
@@ -21,123 +21,44 @@ vim.api.nvim_create_autocmd("DirChanged", {
   end,
 })
 
-
--- auto install vim-plug and plugins, if not found
-local data_dir = vim.fn.stdpath('data')
-if vim.fn.empty(vim.fn.glob(data_dir .. '/site/autoload/plug.vim')) == 1 then
-	vim.cmd('silent !curl -fLo ' .. data_dir .. '/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim')
-	vim.o.runtimepath = vim.o.runtimepath
-	vim.cmd('autocmd VimEnter * PlugInstall --sync | source $MYVIMRC')
-end
-
-local vim = vim
-local Plug = vim.fn['plug#']
-
 vim.g.start_time = vim.fn.reltime()
 vim.loader.enable() --  SPEEEEEEEEEEED 
-vim.call('plug#begin')
-Plug('nvim-lua/plenary.nvim')       -- lua functions that many plugins use
-Plug('nvim-telescope/telescope.nvim') --fuzzy finder
-Plug('neovim/nvim-lspconfig')           -- core LSP client
-Plug('williamboman/mason.nvim')         -- installs LSP servers
-Plug('williamboman/mason-lspconfig.nvim') -- connects mason + lspconfig
-Plug('nvimdev/lspsaga.nvim')            -- nicer UI for hover/definitions
-Plug('github/copilot.vim')
-Plug('catppuccin/nvim', { ['as'] = 'catppuccin' }) --colorscheme
-Plug('ellisonleao/gruvbox.nvim', { ['as'] = 'gruvbox' }) --colorscheme 
-Plug('uZer/pywal16.nvim', { [ 'as' ] = 'pywal16' }) --or, pywal colorscheme
-Plug('nvim-lualine/lualine.nvim') --statusline
-Plug('nvim-tree/nvim-web-devicons') --pretty icons
-Plug('folke/which-key.nvim') --mappings popup
-Plug('romgrk/barbar.nvim') --bufferline
-Plug('goolord/alpha-nvim') --pretty startup
-Plug('nvim-treesitter/nvim-treesitter') --improved syntax
-Plug('mfussenegger/nvim-lint') --async linter
-Plug('nvim-tree/nvim-tree.lua') --file explorer
-Plug('windwp/nvim-autopairs') --autopairs 
-Plug('lewis6991/gitsigns.nvim') --git
-Plug('numToStr/Comment.nvim') --easier comments
-Plug('norcalli/nvim-colorizer.lua') --color highlight
-Plug('ibhagwan/fzf-lua') --fuzzy finder and grep
-Plug('numToStr/FTerm.nvim') --floating terminal
-Plug('ron-rs/ron.vim') --ron syntax highlighting
-Plug('MeanderingProgrammer/render-markdown.nvim') --render md inline
-Plug('emmanueltouzery/decisive.nvim') --view csv files
-Plug('folke/twilight.nvim') --surrounding dim
 
-vim.call('plug#end')
+require("plugins").setup()
 
--- move config and plugin config to alternate files
-require("config.theme")
-require("config.mappings")
-require("config.options")
-require("config.autocmd")
+local function safe_require(module)
+  local ok, result = pcall(require, module)
+  if not ok then
+    vim.schedule(function()
+      vim.notify(("Failed to load %s: %s"):format(module, result), vim.log.levels.WARN)
+    end)
+  end
+  return ok and result or nil
+end
 
--- require("plugins.alpha")
--- require("plugins.autopairs")
-require("plugins.barbar")
-require("plugins.colorizer")
-require("plugins.colorscheme")
-require("plugins.comment")
--- require("plugins.fterm")
--- require("plugins.fzf-lua")
-require("plugins.gitsigns")
-require("plugins.lualine")
-require("plugins.nvim-lint")
--- require("plugins.nvim-tree")
-require("plugins.render-markdown")
--- require("plugins.treesitter")
--- require("plugins.twilight")
--- require("plugins.which-key")
+-- core config
+safe_require("config.theme")
+safe_require("config.options")
+safe_require("config.autocmd")
+safe_require("config.mappings")
 
-vim.defer_fn(function() 
-		--defer non-essential configs,
-		--purely for experimental purposes:
-		--this only makes a difference of +-10ms on initial startup
-require("plugins.autopairs")
-require("plugins.fterm")
-require("plugins.fzf-lua")
-require("plugins.nvim-tree")
-require("plugins.treesitter")
-require("plugins.twilight")
-require("plugins.which-key")
-require("mason").setup()
+-- plugin configs that should load immediately
+for _, module in ipairs({
+  "plugins.todo",
+  "plugins.barbar",
+  "plugins.colorizer",
+  "plugins.colorscheme",
+  "plugins.comment",
+  "plugins.gitsigns",
+  "plugins.lualine",
+  "plugins.nvim-lint",
+  "plugins.render-markdown",
+}) do
+  safe_require(module)
+end
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-require("mason-lspconfig").setup({
-  ensure_installed = { "pyright", "lua_ls" },
-  handlers = {
-    function(server)
-      local cfg = { capabilities = capabilities }
-
-      if server == "pyright" then
-        cfg.settings = {
-          python = { venvPath = ".", venv = ".venv" },
-        }
-      elseif server == "lua_ls" then
-        cfg.settings = {
-          Lua = { diagnostics = { globals = { "vim" } } },
-        }
-      end
-
-      -- new API
-      vim.lsp.config[server] = cfg
-      vim.lsp.enable(server)
-    end,
-  },
-})
-
--- Basic keymaps
-vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP Hover" })
-vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to Definition" })
-vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "References" })
-vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
-
-
--- Optional fancy UI
-require("lspsaga").setup({})
-
-end, 100)
+local deferred = safe_require("plugins.deferred")
+if deferred and deferred.setup then deferred.setup() end
 
 load_theme()
+

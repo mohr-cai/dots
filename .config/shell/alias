@@ -19,6 +19,7 @@ alias rm='rm -Iv'
 alias shell='exec $SHELL -l'
 alias sensors='sensors | bat -l cpuinfo -p'
 alias v='nvim'
+alias lg="lazygit"
 
 help() {
     "$@" --help 2>&1 | bathelp
